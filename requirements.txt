@@ -2,3 +2,4 @@ fastapi==0.115.12
 uvicorn==0.34.3
 peewee==3.18.1
 pydantic==2.11.7
+#a
