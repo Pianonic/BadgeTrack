@@ -60,9 +60,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
-          # Build for multiple architectures
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          file: ./Dockerfile          # Build for multiple architectures
+          platforms: linux/amd64,linux/arm64
           push: true # Push the multi-arch manifest list
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -75,11 +74,9 @@ jobs:
           echo "## 🚀 Docker Build Summary" >> $GITHUB_STEP_SUMMARY
           echo "### Built and pushed images:" >> $GITHUB_STEP_SUMMARY
           echo "- **Docker Hub**: \`${{ secrets.DOCKERHUB_USERNAME }}/badgetrack\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **GitHub Container Registry**: \`ghcr.io/${{ github.repository }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "### Platforms:" >> $GITHUB_STEP_SUMMARY
+          echo "- **GitHub Container Registry**: \`ghcr.io/${{ github.repository }}\`" >> $GITHUB_STEP_SUMMARY          echo "### Platforms:" >> $GITHUB_STEP_SUMMARY
           echo "- \`linux/amd64\` (x86_64)" >> $GITHUB_STEP_SUMMARY
           echo "- \`linux/arm64\` (Apple Silicon, ARM64 servers)" >> $GITHUB_STEP_SUMMARY
-          echo "- \`linux/arm/v7\` (Raspberry Pi, ARM32)" >> $GITHUB_STEP_SUMMARY
           echo "### Tags:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
