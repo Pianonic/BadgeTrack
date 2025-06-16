@@ -3,7 +3,7 @@
 </p>
 <p align="center">
   <strong>BadgeTrack is a Visitor Badge Server.</strong>
-  A powerful FastAPI-based service for generating beautiful visitor badges.
+  A powerful service for generating beautiful visitor badges.
 </p>
 <p align="center">
   <a href="https://github.com/PianoNic/BadgeTrack"><img src="https://badgetrack.pianonic.ch/badge?url=https://github.com/PianoNic/BadgeTrack&label=visitors&color=237e61&style=flat&logo=github" alt="Visitor badge"/></a>
