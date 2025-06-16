@@ -1,10 +1,12 @@
 # Multi-stage build for better multi-arch compatibility
 FROM python:3.13-slim AS builder
 
-# Install build dependencies
+# Install build dependencies needed for compiling Python packages
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
+    make \
+    libc6-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install wheel for better compatibility
