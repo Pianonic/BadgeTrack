@@ -7,7 +7,7 @@
 </p>
 <p align="center">
   <a><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FYourUser%2FBadgeTrack&count_bg=%234ADE80&title_bg=%23555555&icon=github.svg&icon_color=%23E7E7E7&title=Visits&edge_flat=false"/></a>
-  <a href="#-installation"><img src="https://img.shields.io/badge/Self--Host-Instructions-4ade80.svg"/></a>
+  <a href="#-installation"><img src="https://img.shields.io/badge/Self--Host-Instructions-237e61.svg"/></a>
 </p>
 
 ---
