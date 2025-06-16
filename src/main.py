@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Annotated
@@ -15,6 +16,7 @@ import time
 import threading
 import secrets
 import os
+import json
 
 # --- Auto-generate secure key ---
 SECRET_KEY = secrets.token_urlsafe(32)
@@ -40,6 +42,11 @@ app = FastAPI(
     redoc_url=None, 
     openapi_url=None,  
 )
+
+# Mount static files
+app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "..", "static")), name="static")
+app.mount("/assets", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "..", "assets")), name="assets")
+app.mount("/assets", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "..", "assets")), name="assets")
 
 app.add_middleware(
     CORSMiddleware,
@@ -193,3 +200,34 @@ async def badge(
     }
 
     return RedirectResponse(shields_url, headers=headers)
+
+# Mount static files for glassmorphism UI
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# --- HTML Templates ---
+@app.get("/", response_class=HTMLResponse)
+async def homepage():
+    """Serve the glassmorphism badge generator homepage"""
+    template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "index.html")
+    with open(template_path, "r", encoding="utf-8") as f:
+        return HTMLResponse(content=f.read())
+
+@app.get("/about", response_class=HTMLResponse)
+async def about_page():
+    """Serve the about page"""
+    template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "about.html")
+    with open(template_path, "r", encoding="utf-8") as f:
+        return HTMLResponse(content=f.read())
+
+@app.get("/api/app-info")
+async def get_app_info():
+    """Get application version and environment info"""
+    try:
+        version_path = os.path.join(os.path.dirname(__file__), "..", "version.json")
+        with open(version_path, "r", encoding="utf-8") as f:
+            version_data = json.load(f)
+        return version_data
+    except FileNotFoundError:
+        return {"version": "N/A", "environment": "Unknown"}
+    except Exception as e:
+        return {"version": "Error", "environment": "Error"}

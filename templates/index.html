@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlRoot">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BadgeTrack - Dynamic Visit Counter Badges</title>
+    <meta name="description"
+        content="Generate dynamic visit counter badges for your projects with real-time tracking." />
+    <script src="/static/theme-init.js"></script>
+    <link rel="stylesheet" href="/static/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="icon" href="/assets/logo.png" />
+    <script src="/static/theme.js" defer></script>
+    <script src="/static/script.js" defer></script>
+    <script src="/static/app-info.js" defer></script>
+</head>
+
+<body
+    class="bg-primary text-text-primary flex flex-col min-h-screen transition-colors duration-300 ease-in-out fixed-footer-layout">
+    <div class="theme-toggle-container">
+        <button id="theme-toggle" class="theme-toggle-button" title="Toggle Theme">
+            <i id="theme-icon" class="fas fa-desktop"></i>
+        </button>
+    </div>
+    <div id="main-content" class="flex-grow py-4 px-4 md:py-6 pb-20">
+        <div class="max-w-6xl w-full mx-auto px-2 sm:px-4 pt-6">
+            <div class="text-center mb-4 md:mb-6">
+                <h1 class="text-2xl md:text-3xl font-bold text-text-heading mb-1 md:mb-2">
+                    BadgeTrack
+                </h1>
+                <p class="text-sm md:text-base text-text-secondary">
+                    Generate dynamic visit counter badges for your projects
+                </p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                <!-- Badge Generator -->
+                <div
+                    class="bg-secondary rounded-lg shadow-lg p-4 md:p-6 transition-colors duration-300 ease-in-out flex flex-col">
+                    <h2 class="section-title">Badge Generator</h2>
+                    <form id="badge-form" class="flex flex-col flex-grow">
+                        <div class="flex-grow">
+                            <div class="form-group">
+                                <label class="form-label" for="url">Target URL *</label>
+                                <input type="text" id="url" class="form-input"
+                                    placeholder="https://github.com/username/repo" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="label">Badge Label</label>
+                                <input type="text" id="label" class="form-input" placeholder="visits" maxlength="20" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="color">Badge Color</label>
+                                <input type="text" id="color" class="form-input" placeholder="247e62" maxlength="10" />
+                                <div class="color-grid">
+                                    <div class="color-option" data-color="3b82f6"></div>
+                                    <div class="color-option" data-color="8b5cf6"></div>
+                                    <div class="color-option" data-color="ec4899"></div>
+                                    <div class="color-option" data-color="ef4444"></div>
+                                    <div class="color-option" data-color="f97316"></div>
+                                    <div class="color-option" data-color="eab308"></div>
+                                    <div class="color-option" data-color="14b8a6"></div>
+                                    <div class="color-option" data-color="6366f1"></div>
+                                    <div class="color-option" data-color="6b7280"></div>
+                                    <div class="color-option" data-color="06b6d4"></div>
+                                    <div class="color-option" data-color="10b981"></div>
+                                    <div class="color-picker-squircle" title="Pick a custom color">
+                                        <div class="color-picker-bg"></div>
+                                        <input type="color" id="color-picker" class="color-picker-input"
+                                            value="#247e62" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="style">Badge Style</label>
+                                <select id="style" class="form-select">
+                                    <option value="flat">Flat</option>
+                                    <option value="flat-square">Flat Square</option>
+                                    <option value="plastic">Plastic</option>
+                                    <option value="for-the-badge">For The Badge</option>
+                                    <option value="social">Social</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="logo">Logo (optional)</label>
+                                <input type="text" id="logo" class="form-input" placeholder="github" maxlength="20" />
+                            </div>
+                        </div>                        <button type="submit" id="generate-btn" class="generate-btn mt-auto">
+                            Generate Badge
+                        </button>
+                    </form>
+                </div>
+                <!-- Instructions -->
+                <div
+                    class="bg-secondary rounded-lg shadow-lg p-4 md:p-6 transition-colors duration-300 ease-in-out flex flex-col">
+                    <h2 class="section-title">How to Use</h2>
+                    <ol class="instructions">
+                        <li>
+                            Enter the URL you want to track visits for (your GitHub repo,
+                            website, etc.)
+                        </li>
+                        <li>
+                            Customize the badge label, color, and style to match your project
+                        </li>
+                        <li>
+                            Optionally add a logo from the
+                            <a href="https://simpleicons.org/" target="_blank" class="text-accent-active">Simple
+                                Icons</a>
+                            collection
+                        </li>
+                        <li>Click "Generate Badge" to create your dynamic badge</li>
+                        <li>Copy the generated markdown or HTML code</li>
+                        <li>Paste it into your README, website, or documentation</li>
+                        <li>Watch as the visit count updates automatically!</li>
+                    </ol>
+                    <div class="feature-grid mt-auto">
+                        <div class="feature-card">
+                            <div class="feature-title">Real-time Tracking</div>
+                            <div class="feature-description">
+                                Visit counts update instantly with each page view
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-title">Rate Limited</div>
+                            <div class="feature-description">
+                                Smart rate limiting prevents abuse while ensuring accuracy
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-title">Customizable</div>
+                            <div class="feature-description">
+                                Choose from multiple styles, colors, and logos
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-title">Privacy Focused</div>
+                            <div class="feature-description">
+                                IPs are hashed and no personal data is stored                        
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Badge Preview Section - Spans Full Width -->
+            <div id="result-section" class="result-section bg-secondary rounded-lg shadow-lg p-4 md:p-6 transition-colors duration-300 ease-in-out mt-6">
+                <h3 class="section-title">Your Badge</h3>
+                <div id="badge-preview" class="badge-preview"></div>
+                <div class="grid grid-cols-1 md:grid-cols-3">
+                    <div class="form-group">
+                        <label class="form-label">Badge URL</label>
+                        <div class="code-block">
+                            <code id="badge-url"></code>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Markdown</label>
+                        <div class="code-block">
+                            <code id="markdown-code"></code>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">HTML</label>
+                        <div class="code-block">
+                            <code id="html-code"></code>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer bg-secondary border-t border-border-primary transition-colors duration-300 ease-in-out">
+        <div class="footer-links text-xs md:text-sm">
+            <a href="https://github.com/pianonic/BadgeTrack" class="footer-link">BadgeTrack</a>
+            <span class="footer-separator">•</span>
+            <a href="/about" class="footer-link">About</a>
+            <span class="footer-separator">•</span>
+            <a href="https://github.com/pianonic/BadgeTrack" class="footer-link" target="_blank">
+                GitHub <i class="fab fa-github footer-github-icon"></i>
+            </a>
+            <span class="footer-separator">•</span>
+            <span class="footer-text">BadgeTrack &copy; <span id="currentYear">2025</span></span>
+            <span class="footer-separator">•</span>
+            <a href="https://github.com/pianonic/BadgeTrack/blob/main/LICENSE"
+                class="footer-link footer-text">MIT</a>
+            <span class="footer-separator">•</span>
+            <span class="footer-text" id="environment">loading...</span>
+            <span class="footer-separator">•</span>
+            <a href="#" class="footer-link footer-version" target="_blank" id="version">loading...</a>
+        </div>
+    </footer>
+</body>
+
+</html>
