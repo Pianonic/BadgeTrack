@@ -1,0 +1,10 @@
+services:
+  badgetrack:
+    build: .
+    ports:
+      - "8925:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
