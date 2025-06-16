@@ -10,6 +10,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY main.py .
 COPY src/ ./src/
+COPY static/ ./static/
+COPY templates/ ./templates/
+COPY assets/ ./assets/
+COPY version.json .
 
 # Create data directory for database
 RUN mkdir -p data

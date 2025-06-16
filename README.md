@@ -14,14 +14,15 @@
 
 ## 🚀 Features
 
-- ⚡ **Dual Rate Limiting**:  
-  - Daily visit tracking per URL (24-hour cooldown per IP/URL)  
+- ⚡ **Enhanced Rate Limiting**:  
+  - Daily visit tracking per URL (48-hour cooldown per IP/URL)  
   - New badge creation limit (10 new badges per IP per day)
 - 🎨 **Customizable Badges**: Multiple colors, styles, and logos supported
 - 🗄️ **Efficient Database**: Clean URL-based storage with visit counters
 - 🔐 **SQL Injection Safe**: Parameterized queries protect against attacks
 - 📊 **Shields.io Integration**: Beautiful badges powered by Shields.io
 - 💾 **Memory Efficient**: In-memory rate limiting cache with auto-cleanup
+- 🐳 **Docker Ready**: Multi-architecture Docker images available
 
 After installation, BadgeTrack will be accessible at  
 - `http://localhost:8925` (Docker)  
@@ -60,6 +61,10 @@ After installation, BadgeTrack will be accessible at
 | `color`   | `4ade80`  | Badge color (green theme)          | `4ade80`, `22c55e`, `green`             |
 | `style`   | `flat`    | Badge style                        | `flat`, `plastic`, `for-the-badge`      |
 | `logo`    | *none*    | Brand logo                         | `github`, `gitlab`, `docker`            |
+
+**Rate Limiting:**
+- Visit counting: 48-hour cooldown per IP/URL combination
+- New badge creation: 10 new badges per IP per day
 
 ---
 

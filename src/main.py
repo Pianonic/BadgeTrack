@@ -44,9 +44,18 @@ app = FastAPI(
 )
 
 # Mount static files
-app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "..", "static")), name="static")
-app.mount("/assets", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "..", "assets")), name="assets")
-app.mount("/assets", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "..", "assets")), name="assets")
+static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
+if not os.path.exists(static_dir):
+    # For Docker deployment, static is at the root level
+    static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+
+assets_dir = os.path.join(os.path.dirname(__file__), "..", "assets")
+if not os.path.exists(assets_dir):
+    # For Docker deployment, assets is at the root level
+    assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets")
+
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
 
 app.add_middleware(
     CORSMiddleware,
@@ -57,7 +66,7 @@ app.add_middleware(
 )
 
 # --- Rate Limiting & Visit Tracking ---
-RATE_LIMIT_WINDOW = 86400  # 24 hours (1 day)
+RATE_LIMIT_WINDOW = 172800  # 48 hours (2 days)
 MAX_NEW_BADGES_PER_DAY = 10  # Maximum new badges per IP per day
 rate_limit_cache = {}  # {ip_hash:url -> timestamp}
 visit_cache_expiry = {}  # {cache_key -> expiry_timestamp}
@@ -95,6 +104,9 @@ def is_rate_limited(ip_hash, url):
     with lock:
         last = rate_limit_cache.get(key, 0)
         if now - last < RATE_LIMIT_WINDOW:
+            # Reset countdown - extend the rate limit period
+            rate_limit_cache[key] = now
+            visit_cache_expiry[key] = now + RATE_LIMIT_WINDOW
             return True
         
         # Update cache with new timestamp and expiry
@@ -196,19 +208,19 @@ async def badge(
         "X-Frame-Options": "DENY",
         "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
         "Pragma": "no-cache",
-        "Expires": "0",
-    }
-
+        "Expires": "0",    }
+    
     return RedirectResponse(shields_url, headers=headers)
-
-# Mount static files for glassmorphism UI
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # --- HTML Templates ---
 @app.get("/", response_class=HTMLResponse)
 async def homepage():
     """Serve the glassmorphism badge generator homepage"""
     template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "index.html")
+    if not os.path.exists(template_path):
+        # For Docker deployment, templates is at the root level
+        template_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates", "index.html")
+    
     with open(template_path, "r", encoding="utf-8") as f:
         return HTMLResponse(content=f.read())
 
@@ -216,6 +228,10 @@ async def homepage():
 async def about_page():
     """Serve the about page"""
     template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "about.html")
+    if not os.path.exists(template_path):
+        # For Docker deployment, templates is at the root level
+        template_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates", "about.html")
+    
     with open(template_path, "r", encoding="utf-8") as f:
         return HTMLResponse(content=f.read())
 
@@ -224,6 +240,10 @@ async def get_app_info():
     """Get application version and environment info"""
     try:
         version_path = os.path.join(os.path.dirname(__file__), "..", "version.json")
+        if not os.path.exists(version_path):
+            # For Docker deployment, version.json is at the root level
+            version_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "version.json")
+        
         with open(version_path, "r", encoding="utf-8") as f:
             version_data = json.load(f)
         return version_data
@@ -231,3 +251,26 @@ async def get_app_info():
         return {"version": "N/A", "environment": "Unknown"}
     except Exception as e:
         return {"version": "Error", "environment": "Error"}
+
+@app.get("/api/stats/{url}")
+async def get_url_stats(url: str):
+    """Get the latest visit count for a URL"""
+    try:
+        # Validate URL parameter
+        if not url or len(url) > 200:
+            raise HTTPException(status_code=400, detail="Invalid URL parameter")
+        
+        url_stats = UrlStats.get(UrlStats.url == url)
+        return {
+            "url": url,
+            "visit_count": url_stats.visit_count,
+            "last_updated": int(time.time())
+        }
+    except UrlStats.DoesNotExist:
+        return {
+            "url": url,
+            "visit_count": 0,
+            "last_updated": int(time.time())
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error")
