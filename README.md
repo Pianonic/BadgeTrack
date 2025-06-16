@@ -27,7 +27,7 @@
 
 1. **Clone the repository:**
    ```powershell
-   git clone https://github.com/YourUser/BadgeTrack.git
+   git clone https://github.com/Pianonic/BadgeTrack.git
    cd BadgeTrack
    ```
 
