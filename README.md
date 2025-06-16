@@ -21,32 +21,6 @@
 - 📊 **Shields.io Integration**: Beautiful badges powered by Shields.io
 - 💾 **Memory Efficient**: In-memory rate limiting cache with auto-cleanup
 
-## 📦 Installation
-
-### Quick Start:
-
-1. **Clone the repository:**
-   ```powershell
-   git clone https://github.com/Pianonic/BadgeTrack.git
-   cd BadgeTrack
-   ```
-
-2. **Install dependencies:**
-   ```powershell
-   pip install -r requirements.txt
-   ```
-
-3. **Run the server:**
-   ```powershell
-   cd src
-   uvicorn main:app --host 0.0.0.0 --port 8000
-   ```
-
-### Docker:
-```powershell
-docker-compose up --build
-```
-
 After installation, BadgeTrack will be accessible at http://localhost:8925 (Docker) or http://localhost:8000 (direct)
 
 ## 🛠️ API Usage
@@ -77,6 +51,18 @@ After installation, BadgeTrack will be accessible at http://localhost:8925 (Dock
 
 ## 🐳 Docker Deployment
 
+### Images
+BadgeTrack provides official Docker images for multiple architectures:
+
+```bash
+# Pull from GitHub Container Registry
+docker pull ghcr.io/pianonic/badgetrack:latest
+
+# Pull from Docker Hub
+docker pull pianonic/badgetrack:latest
+```
+
+### Local Development
 ```powershell
 # Build and run with Docker Compose
 docker-compose up --build
