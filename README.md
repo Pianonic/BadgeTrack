@@ -62,6 +62,34 @@ docker pull ghcr.io/pianonic/badgetrack:latest
 docker pull pianonic/badgetrack:latest
 ```
 
+### Production Deployment (Latest Image)
+Use this Docker Compose configuration to run the latest published image:
+
+```yaml
+services:
+  badgetrack:
+    image: pianonic/badgetrack:latest
+    container_name: badgetrack
+    ports:
+      - "8925:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+```
+
+```powershell
+# Run with the latest image
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop the service
+docker-compose down
+```
+
 ### Local Development
 ```powershell
 # Build and run with Docker Compose
