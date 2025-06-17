@@ -8,7 +8,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY main.py .
+COPY wsgi.py .
 COPY src/ ./src/
 COPY static/ ./static/
 COPY templates/ ./templates/
@@ -22,4 +22,4 @@ RUN mkdir -p data
 EXPOSE 8000
 
 # Run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "wsgi:app", "--host", "0.0.0.0", "--port", "8000"]
