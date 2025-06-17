@@ -1,4 +1,4 @@
-## Release Notes - v1.0.4 (June 17, 2025)
+## Release Notes - v1.1.0 (17.06.2025)
 
 ### Changes:
 - Renamed `main.py` to `wsgi.py` for clarity in production environments.
