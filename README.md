@@ -6,7 +6,7 @@
   A powerful service for generating beautiful visitor badges.
 </p>
 <p align="center">
-  <a href="https://github.com/PianoNic/BadgeTrack"><img src="https://badgetrack.pianonic.ch/badge?url=https://github.com/PianoNic/BadgeTrack&label=visitors&color=237e61&style=flat&logo=github" alt="Visitor badge"/></a>
+  <a href="https://github.com/PianoNic/BadgeTrack"><img src="https://badgetrack.pianonic.ch/badge?url=BadgeTrack&label=visitors&color=237e61&style=flat&logo=github" alt="Visitor badge"/></a>
   <a href="#-installation"><img src="https://img.shields.io/badge/Self--Host-Instructions-237e61.svg" /></a>
 </p>
 
