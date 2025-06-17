@@ -7,4 +7,8 @@ services:
       - ./data:/app/data
     environment:
       - PYTHONUNBUFFERED=1
+      - APP_ENV=Production
+      - LOG_LEVEL=INFO
+      - SECRET_KEY=your_strong_unique_secret_key_here # IMPORTANT: Change this!
+      - RATE_LIMIT_WINDOW_SECONDS=172800 # e.g., 48 hours in seconds
     restart: unless-stopped

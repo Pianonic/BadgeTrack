@@ -15,8 +15,7 @@
 ## 🚀 Features
 
 - ⚡ **Enhanced Rate Limiting**:  
-  - Daily visit tracking per URL (48-hour cooldown per IP/URL)  
-  - New badge creation limit (10 new badges per IP per day)
+  - Visit tracking per URL (48-hour cooldown per IP/URL)  
 - 🎨 **Customizable Badges**: Multiple colors, styles, and logos supported
 - 🗄️ **Efficient Database**: Clean URL-based storage with visit counters
 - 🔐 **SQL Injection Safe**: Parameterized queries protect against attacks
@@ -25,58 +24,29 @@
 - 🐳 **Docker Ready**: Multi-architecture Docker images available
 
 After installation, BadgeTrack will be accessible at  
-- `http://localhost:8925` (Docker)  
-- `http://localhost:8000` (direct)  
+- `http://localhost:8925` (Docker, if using default `compose.yml` port)  
+- `http://localhost:8000` (direct execution via `python wsgi.py` with default Uvicorn port)  
 - Or your own domain, e.g. `https://badgetrack.pianonic.ch`
 
 ---
 
-## 🛠️ API Usage
+## ⚙️ Configuration
 
-### Basic Badge
+BadgeTrack can be configured using environment variables. This is especially useful when deploying with Docker via `compose.yml` or other orchestration methods.
 
-```markdown
-![visitors](https://badgetrack.pianonic.ch/badge?url=https://github.com/YourUser/YourRepo)
-```
+| Variable                    | Default (in code if not set)          | Description                                                                                                |
+| --------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `APP_ENV`                   | `Production`                          | Sets the application environment. Affects things like debug messages and how `version.json` environment is treated. Set to `Development` for local dev.    |
+| `LOG_LEVEL`                 | `INFO`                                | Controls the application's logging verbosity (e.g., `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`).       |
+| `SECRET_KEY`                | (auto-generated, 32-char secure hex)  | **IMPORTANT**: A secret key used for hashing and security. **Set a strong, unique value (>=32 chars) in production!**   |
+| `RATE_LIMIT_WINDOW_SECONDS` | `172800` (48 hours)                   | The time window in seconds for which a unique IP/URL visit is counted once.                                |
+| `UVICORN_HOST`              | `127.0.0.1`                           | Host address for Uvicorn when running `wsgi.py` directly (e.g., `0.0.0.0` to expose). Not typically set in `compose.yml`. |
+| `UVICORN_PORT`              | `8000`                                | Port for Uvicorn when running `wsgi.py` directly. Not typically set in `compose.yml` as Docker handles port mapping. |                            |
+| `UVICORN_LOG_LEVEL`         | `info`                                | Log level for the Uvicorn server itself when running `wsgi.py` directly.                                     |
 
-### Custom Badge
-
-```markdown
-![visitors](https://badgetrack.pianonic.ch/badge?url=https://github.com/YourUser/YourRepo&label=visitors&color=4ade80&style=flat&logo=github)
-```
-
-### Live Examples
-
-- Basic:  
-  `https://badgetrack.pianonic.ch/badge?url=https://github.com/microsoft/vscode`
-- Custom:  
-  `https://badgetrack.pianonic.ch/badge?url=https://example.com&label=visitors&color=blue&style=for-the-badge&logo=github`
-
-### Parameters
-
-| Parameter | Default   | Description                        | Example                                 |
-|-----------|-----------|------------------------------------|-----------------------------------------|
-| `url`     | *required*| The URL to track visits for        | `https://github.com/user/repo`          |
-| `label`   | `visits`  | Badge label text                   | `visitors`, `views`, `hits`             |
-| `color`   | `4ade80`  | Badge color (green theme)          | `4ade80`, `22c55e`, `green`             |
-| `style`   | `flat`    | Badge style                        | `flat`, `plastic`, `for-the-badge`      |
-| `logo`    | *none*    | Brand logo                         | `github`, `gitlab`, `docker`            |
-
-**Rate Limiting:**
-- Visit counting: 48-hour cooldown per IP/URL combination
-- New badge creation: 10 new badges per IP per day
+When using `compose.yml`, these can be set under the `environment` section for the `badgetrack` service as shown below.
 
 ---
-
-## 🏷️ Markdown Table Example
-
-| Badge Type | Example Markdown | Preview |
-|------------|------------------|---------|
-| Basic | `![visitors](https://badgetrack.pianonic.ch/badge?url=https://github.com/YourUser/YourRepo)` | ![visitors](https://badgetrack.pianonic.ch/badge?url=https://github.com/YourUser/YourRepo) |
-| Custom | `![visitors](https://badgetrack.pianonic.ch/badge?url=https://github.com/YourUser/YourRepo&label=visitors&color=4ade80&style=flat&logo=github)` | ![visitors](https://badgetrack.pianonic.ch/badge?url=https://github.com/YourUser/YourRepo&label=visitors&color=4ade80&style=flat&logo=github) |
-
----
-
 ## 🐳 Docker Deployment
 
 ### Images
@@ -93,24 +63,30 @@ docker pull pianonic/badgetrack:latest
 
 ### Production Deployment (Latest Image)
 
-Use this Docker Compose configuration to run the latest published image:
+Use this Docker Compose configuration (`compose.yml`) to run the latest published image:
 
 ```yaml
 services:
   badgetrack:
-    image: pianonic/badgetrack:latest
+    image: pianonic/badgetrack:latest # Or ghcr.io/pianonic/badgetrack:latest
     container_name: badgetrack
     ports:
-      - "8925:8000"
+      - "8925:8000" # External port : Internal Uvicorn port (default 8000)
     volumes:
-      - ./data:/app/data
+      - ./data:/app/data # Persists the SQLite database
     environment:
-      - PYTHONUNBUFFERED=1
+      - PYTHONUNBUFFERED=1   # Ensures Python logs appear in real-time
+      - APP_ENV=Production   # Set to Production for live deployments
+      - LOG_LEVEL=INFO       # Adjust as needed: DEBUG, INFO, WARNING, ERROR, CRITICAL
+      - SECRET_KEY=your_very_strong_and_unique_secret_key_please_change_me # IMPORTANT: Set a strong, unique key!
+      - RATE_LIMIT_WINDOW_SECONDS=172800 # 48 hours, in seconds
     restart: unless-stopped
 ```
 
+To run:
+
 ```powershell
-# Run with the latest image
+# Start the service
 docker-compose up -d
 
 # View logs
@@ -133,10 +109,11 @@ docker run -p 8925:8000 -v ${PWD}/data:/app/data badgetrack
 
 The service will be available at `http://localhost:8925`
 
-### Environment Variables
+### Environment Variables in Docker
 
-- `PYTHONUNBUFFERED=1` - Ensures real-time log output
-- Volume mounting preserves database between container restarts
+- `PYTHONUNBUFFERED=1`: Ensures real-time log output from Python within the container.
+- Volume mounting (`./data:/app/data`): Preserves the SQLite database (`data/visitors.db`) between container restarts.
+- Other variables like `APP_ENV`, `SECRET_KEY`, etc., configure the application as described in the [⚙️ Configuration](#️-configuration) section.
 
 ---
 
