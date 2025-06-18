@@ -7,6 +7,7 @@
 </p>
 <p align="center">
   <a href="https://github.com/PianoNic/BadgeTrack"><img src="https://badgetrack.pianonic.ch/badge?url=Pianonic/BadgeTrack&label=visitors&color=237e61&style=flat&logo=github" alt="Visitor badge"/></a>
+  <a href="https://badgetrack.pianonic.ch/"><img src="https://img.shields.io/badge/Create%20Badge-badgetrack.pianonic.ch-237e61.svg"/></a>
   <a href="#-installation"><img src="https://img.shields.io/badge/Self--Host-Instructions-237e61.svg" /></a>
 </p>
 
