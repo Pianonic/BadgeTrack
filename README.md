@@ -15,8 +15,8 @@
 
 ## 🚀 Features
 
-- ⚡ **Enhanced Rate Limiting**:  
-  - Visit tracking per URL (48-hour cooldown per IP/URL)  
+- ⚡ **Unique Visitor Tracking**:  
+  - Each visitor is counted only once per badge tag, preventing repeat counts.
 - 🎨 **Customizable Badges**: Multiple colors, styles, and logos supported
 - 🗄️ **Efficient Database**: Clean URL-based storage with visit counters
 - 🔐 **SQL Injection Safe**: Parameterized queries protect against attacks
@@ -40,7 +40,6 @@ BadgeTrack can be configured using environment variables. This is especially use
 | `APP_ENV`                   | `Production`                          | Sets the application environment. Affects things like debug messages and how `version.json` environment is treated. Set to `Development` for local dev.    |
 | `LOG_LEVEL`                 | `INFO`                                | Controls the application's logging verbosity (e.g., `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`).       |
 | `SECRET_KEY`                | (auto-generated, 32-char secure hex)  | **IMPORTANT**: A secret key used for hashing and security. **Set a strong, unique value (>=32 chars) in production!**   |
-| `RATE_LIMIT_WINDOW_SECONDS` | `172800` (48 hours)                   | The time window in seconds for which a unique IP/URL visit is counted once.                                |
 | `UVICORN_HOST`              | `127.0.0.1`                           | Host address for Uvicorn when running `wsgi.py` directly (e.g., `0.0.0.0` to expose). Not typically set in `compose.yml`. |
 | `UVICORN_PORT`              | `8000`                                | Port for Uvicorn when running `wsgi.py` directly. Not typically set in `compose.yml` as Docker handles port mapping. |                            |
 | `UVICORN_LOG_LEVEL`         | `info`                                | Log level for the Uvicorn server itself when running `wsgi.py` directly.                                     |
@@ -80,7 +79,6 @@ services:
       - APP_ENV=Production   # Set to Production for live deployments
       - LOG_LEVEL=INFO       # Adjust as needed: DEBUG, INFO, WARNING, ERROR, CRITICAL
       - SECRET_KEY=your_very_strong_and_unique_secret_key_please_change_me # IMPORTANT: Set a strong, unique key!
-      - RATE_LIMIT_WINDOW_SECONDS=172800 # 48 hours, in seconds
     restart: unless-stopped
 ```
 
