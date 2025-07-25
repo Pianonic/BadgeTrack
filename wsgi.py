@@ -12,5 +12,5 @@ if __name__ == "__main__":
     port = int(os.getenv("UVICORN_PORT", "8000"))
     log_level = os.getenv("UVICORN_LOG_LEVEL", "info").lower()
 
-    logger.info(f"Starting Uvicorn for wsgi:app: host={host}, port={port}, log_level={log_level}")
-    uvicorn.run("wsgi:app", host=host, port=port, log_level=log_level, reload=True)
+    logger.info(f"Starting Uvicorn for src.main:app: host={host}, port={port}, log_level={log_level}")
+    uvicorn.run("src.main:app", host=host, port=port, log_level=log_level, reload=True)
