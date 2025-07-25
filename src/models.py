@@ -17,26 +17,22 @@ class BaseModel(Model):
     class Meta:
         database = db
 
-class IpHash(BaseModel):
-    """Store unique IP hashes"""
-    hash = CharField(max_length=64, unique=True)
-
 class Badge(BaseModel):
     """Badge URLs with their total visit counts"""
     url = CharField(max_length=200, unique=True)
     visits = IntegerField(default=0)
     created = IntegerField()  # When first created
 
-class Visit(BaseModel):
-    """Track individual IP visits to prevent spam"""
-    ip_hash = ForeignKeyField(IpHash, backref='visits')
-    badge = ForeignKeyField(Badge, backref='visits')
+class Cookie(BaseModel):
+    """Track individual cookie visits to prevent spam"""
+    cookie_id = CharField(max_length=64, unique=True)
+    badge = ForeignKeyField(Badge, backref='cookies')
     last_visit = IntegerField()
-    
+
     class Meta:
         database = db
         indexes = (
-            (("ip_hash", "badge"), True),  # One record per IP+Badge combo
+            (("cookie_id", "badge"), True),  # One record per cookie+Badge combo
         )
 
 def initialize_database():
@@ -49,7 +45,7 @@ def initialize_database():
         
         if db.is_closed():
             db.connect()
-        db.create_tables([IpHash, Badge, Visit], safe=True)
+        db.create_tables([Badge, Cookie], safe=True)
         logger.info("Database initialized successfully")
         return True
     except Exception as e:

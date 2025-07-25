@@ -18,19 +18,6 @@ if SECRET_KEY == default_secret_key_placeholder or len(SECRET_KEY) < 32:
         logging.warning("Provided SECRET_KEY is too short. Consider generating a new one.")
 
 
-def get_ip_hash(ip: str) -> str:
-    return hashlib.sha256((ip + SECRET_KEY).encode()).hexdigest()
-
-
-def get_client_ip(request) -> str:
-    ip = (
-        request.headers.get("x-forwarded-for", request.client.host)
-        .split(",")[0]
-        .strip()
-    )
-    return ip
-
-
 def build_shields_url(label: str, count: int, color: str, style: str, logo: str = "") -> str:
     shields_url = (
         f"https://img.shields.io/badge/"
