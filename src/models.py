@@ -10,8 +10,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "visitors.db")
-db = SqliteDatabase(db_path)
+if os.getenv("TESTING"):
+    db = SqliteDatabase(":memory:")
+else:
+    db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "visitors.db")
+    db = SqliteDatabase(db_path)
 
 class BaseModel(Model):
     class Meta:
@@ -37,11 +40,14 @@ class Cookie(BaseModel):
 
 def initialize_database():
     try:
-        logger.info(f"Database path: {db_path}")
-        logger.info(f"Database directory exists: {os.path.exists(os.path.dirname(db_path))}")
-        
-        # Ensure the data directory exists
-        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        if os.getenv("TESTING"):
+            logger.info("Using in-memory database for testing")
+        else:
+            db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "visitors.db")
+            logger.info(f"Database path: {db_path}")
+            logger.info(f"Database directory exists: {os.path.exists(os.path.dirname(db_path))}")
+            # Ensure the data directory exists
+            os.makedirs(os.path.dirname(db_path), exist_ok=True)
         
         if db.is_closed():
             db.connect()
