@@ -18,8 +18,8 @@ class BaseModel(Model):
         database = db
 
 class Badge(BaseModel):
-    """Badge URLs with their total visit counts"""
-    url = CharField(max_length=200, unique=True)
+    """Badge tags with their total visit counts"""
+    tag = CharField(max_length=200, unique=True)
     visits = IntegerField(default=0)
     created = IntegerField()  # When first created
 

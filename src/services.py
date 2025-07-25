@@ -9,15 +9,15 @@ import secrets
 
 logger = logging.getLogger(__name__)
 
-def update_visit_count(cookie_id: str, url_str: str) -> Tuple[int, bool, str]:
-    """Update visit count for a URL and cookie combination"""
+def update_visit_count(cookie_id: str, tag_str: str) -> Tuple[int, bool, str]:
+    """Update visit count for a tag and cookie combination"""
     current_time = int(time.time())
     new_cookie_id = None
 
     try:
         with db.atomic():
             badge, badge_created = Badge.get_or_create(
-                url=url_str,
+                tag=tag_str,
                 defaults={'created': current_time}
             )
 
@@ -41,15 +41,15 @@ def update_visit_count(cookie_id: str, url_str: str) -> Tuple[int, bool, str]:
     except Exception as e:
         logger.error(f"Error updating visit count: {e}")
         try:
-            badge = Badge.get(Badge.url == url_str)
+            badge = Badge.get(Badge.tag == tag_str)
             return badge.visits, False, new_cookie_id
         except Badge.DoesNotExist:
             return 0, False, new_cookie_id
 
-def get_url_visit_count(url_str: str) -> int:
-    """Get total visit count for a URL"""
+def get_tag_visit_count(tag_str: str) -> int:
+    """Get total visit count for a tag"""
     try:
-        badge = Badge.get(Badge.url == url_str)
+        badge = Badge.get(Badge.tag == tag_str)
         return badge.visits
     except Badge.DoesNotExist:
         return 0
@@ -57,7 +57,7 @@ def get_url_visit_count(url_str: str) -> int:
 def get_system_statistics() -> dict:
     """Get system-wide statistics"""
     try:
-        total_urls = Badge.select().count()
+        total_tags = Badge.select().count()
         total_visits = Badge.select(fn.SUM(Badge.visits)).scalar() or 0
         
         # Count badges created in last 24 hours
@@ -67,14 +67,14 @@ def get_system_statistics() -> dict:
         ).count()
         
         return {
-            "total_tracked_urls": total_urls,
+            "total_tracked_tags": total_tags,
             "total_visits": total_visits,
             "new_badges_today": recent_badges,
         }
     except Exception as e:
         logger.error(f"Error getting system statistics: {e}")
         return {
-            "total_tracked_urls": 0,
+            "total_tracked_tags": 0,
             "total_visits": 0,
             "new_badges_today": 0,
         }
