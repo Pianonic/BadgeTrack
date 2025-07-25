@@ -8,8 +8,8 @@ import os
 import logging
 import json
 from .models import initialize_database, close_database
-from .schemas import BadgeParams, UrlStatsResponse, SystemStatsResponse
-from .services import update_visit_count, get_url_visit_count, get_system_statistics, get_app_info, load_template
+from .schemas import BadgeParams, TagStatsResponse, SystemStatsResponse
+from .services import update_visit_count, get_tag_visit_count, get_system_statistics, get_app_info, load_template
 from .utils import build_shields_url, get_security_headers
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
@@ -71,48 +71,48 @@ app.add_middleware(
 async def badge(
     request: Request,
     response: Response,
-    url: str,
+    tag: str,
     label: str = "visits",
     color: str = "4ade80",
     style: str = "flat",
     logo: str = "",
 ):
     try:
-        params = BadgeParams(url=url, label=label, color=color, style=style, logo=logo)
+        params = BadgeParams(tag=tag, label=label, color=color, style=style, logo=logo)
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid parameters.")
 
     cookie_id = request.cookies.get("visitor_id")
 
     try:
-        count, was_incremented, new_cookie_id = update_visit_count(cookie_id, params.url)
+        count, was_incremented, new_cookie_id = update_visit_count(cookie_id, params.tag)
         if new_cookie_id:
             response.set_cookie(key="visitor_id", value=new_cookie_id, max_age=31536000, httponly=True, samesite="Lax")
     except ValueError as e:
         raise HTTPException(status_code=429, detail=str(e))
     except Exception as e:
         logger.error(f"Error updating visit count: {e}")
-        count = get_url_visit_count(params.url)
+        count = get_tag_visit_count(params.tag)
 
     shields_url = build_shields_url(params.label, count, params.color, params.style, params.logo)
 
     headers = get_security_headers()
     return RedirectResponse(shields_url, headers=headers)
 
-@app.get("/api/stats/{url}", response_model=UrlStatsResponse)
-async def get_url_stats_endpoint(url: str):
+@app.get("/api/stats/{tag}", response_model=TagStatsResponse)
+async def get_tag_stats_endpoint(tag: str):
     try:
-        if not url or len(url) > 200:
-            raise HTTPException(status_code=400, detail="Invalid URL parameter")
+        if not tag or len(tag) > 200:
+            raise HTTPException(status_code=400, detail="Invalid tag parameter")
         
-        count = get_url_visit_count(url)
-        return UrlStatsResponse(
-            url=url,
+        count = get_tag_visit_count(tag)
+        return TagStatsResponse(
+            tag=tag,
             visit_count=count,
             last_updated=int(time.time())
         )
     except Exception as e:
-        logger.error(f"Error getting URL stats: {e}")
+        logger.error(f"Error getting tag stats: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.get("/api/stats", response_model=SystemStatsResponse)
@@ -121,10 +121,9 @@ async def get_system_stats_endpoint():
         stats = get_system_statistics()
         
         return SystemStatsResponse(
-            total_tracked_urls=stats["total_tracked_urls"],
+            total_tracked_tags=stats["total_tracked_tags"],
             total_visits=stats["total_visits"],
-            new_badges_today=stats["new_badges_today"],
-            rate_limit_window_hours=0 
+            new_badges_today=stats["new_badges_today"]
         )
     except Exception as e:
         logger.error(f"Error getting system stats: {e}")

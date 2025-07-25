@@ -6,7 +6,7 @@ class BadgeGenerator {
     }
     initializeElements() {
         this.form = document.getElementById('badge-form');
-        this.urlInput = document.getElementById('url');
+        this.tagInput = document.getElementById('tag');
         this.labelInput = document.getElementById('label');
         this.colorInput = document.getElementById('color');
         this.colorPicker = document.getElementById('color-picker');
@@ -33,16 +33,9 @@ class BadgeGenerator {
             option.addEventListener('click', () => {
                 this.selectColor(option);
             });
-        });
-
-        // Copy button events
-        document.querySelectorAll('.copy-btn').forEach((btn) => {
-            btn.addEventListener('click', (e) => {
-                this.copyToClipboard(e.target);
-            });
         }); // Real-time preview
         [
-            this.urlInput,
+            this.tagInput,
             this.labelInput,
             this.colorInput,
             this.styleSelect,
@@ -127,8 +120,8 @@ class BadgeGenerator {
 
     updatePreview() {
         if (!this.badgePreview) return;
-        const url = this.urlInput.value.trim();
-        if (!url) return;
+        const tag = this.tagInput.value.trim();
+        if (!tag) return;
 
         const badgeUrl = this.buildBadgeUrl();
         this.badgePreview.innerHTML = `<img src="${badgeUrl}" alt="Badge Preview" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjIwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMjAiIGZpbGw9IiNjY2MiLz48dGV4dCB4PSI1MCIgeT0iMTUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzMzMyI+UHJldmlldyBVbmF2YWlsYWJsZTwvdGV4dD48L3N2Zz4='" />`;
@@ -137,7 +130,7 @@ class BadgeGenerator {
     buildBadgeUrl() {
         const baseUrl = window.location.origin;
         const params = new URLSearchParams({
-            url: this.urlInput.value.trim(),
+            tag: this.tagInput.value.trim(),
             label: this.labelInput.value.trim() || 'visits',
             color: this.colorInput.value.trim() || '247e62',
             style: this.styleSelect.value || 'flat',
@@ -151,17 +144,9 @@ class BadgeGenerator {
     }
 
     generateBadge() {
-        const url = this.urlInput.value.trim();
-        if (!url) {
-            this.showToast('Please enter a URL');
-            return;
-        }
-
-        // Validate URL format
-        try {
-            new URL(url.startsWith('http') ? url : `https://${url}`);
-        } catch {
-            this.showToast('Please enter a valid URL');
+        const tag = this.tagInput.value.trim();
+        if (!tag) {
+            this.showToast('Please enter a tracking tag');
             return;
         }
 
@@ -173,11 +158,11 @@ class BadgeGenerator {
         this.badgeUrl.textContent = badgeUrl;
 
         // Generate markdown
-        const markdown = `[![${label}](${badgeUrl})](${url})`;
+        const markdown = `![${label}](${badgeUrl})`;
         this.markdownCode.textContent = markdown;
 
         // Generate HTML
-        const html = `<a href="${url}"><img src="${badgeUrl}" alt="${label}" /></a>`;
+        const html = `<img src="${badgeUrl}" alt="${label}" />`;
         this.htmlCode.textContent = html;
 
         // Show results
