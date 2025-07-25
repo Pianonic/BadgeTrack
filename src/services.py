@@ -1,59 +1,50 @@
 from typing import Tuple
 from peewee import fn
-from .models import db, IpHash, Badge, Visit
-from .rate_limiter import is_visit_allowed
+from .models import db, Badge, Cookie
 import time
 import os
 import json
 import logging
+import secrets
 
 logger = logging.getLogger(__name__)
 
-def update_visit_count(ip_hash_str: str, url_str: str) -> Tuple[int, bool]:
-    """Update visit count for a URL and IP combination"""
+def update_visit_count(cookie_id: str, url_str: str) -> Tuple[int, bool, str]:
+    """Update visit count for a URL and cookie combination"""
     current_time = int(time.time())
-    
+    new_cookie_id = None
+
     try:
         with db.atomic():
-            # Get or create IP hash record
-            ip_hash, _ = IpHash.get_or_create(hash=ip_hash_str)
-            
-            # Get or create badge record
             badge, badge_created = Badge.get_or_create(
                 url=url_str,
                 defaults={'created': current_time}
             )
-            
-            # Check if visit is allowed (rate limiting)
-            if is_visit_allowed(ip_hash_str, url_str):
-                # Get or create visit record for this IP-Badge combination
-                visit, visit_created = Visit.get_or_create(
-                    ip_hash=ip_hash,
-                    badge=badge,
-                    defaults={'last_visit': current_time}
-                )
-                
-                # Only increment if this is a new visit or enough time has passed
-                if visit_created or (current_time - visit.last_visit >= int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "172800"))):
-                    visit.last_visit = current_time
-                    visit.save()
-                    
-                    badge.visits += 1
-                    badge.save()
-                    
-                    return badge.visits, True
-            
-            # Visit not allowed or not enough time passed, return current count
-            return badge.visits, False
-                
+
+            if not cookie_id:
+                cookie_id = secrets.token_hex(16)
+                new_cookie_id = cookie_id
+
+            cookie, cookie_created = Cookie.get_or_create(
+                cookie_id=cookie_id,
+                badge=badge,
+                defaults={'last_visit': current_time}
+            )
+
+            if cookie_created:
+                badge.visits += 1
+                badge.save()
+                return badge.visits, True, new_cookie_id
+            else:
+                return badge.visits, False, new_cookie_id
+
     except Exception as e:
         logger.error(f"Error updating visit count: {e}")
-        # Try to get current count even if update failed
         try:
             badge = Badge.get(Badge.url == url_str)
-            return badge.visits, False
+            return badge.visits, False, new_cookie_id
         except Badge.DoesNotExist:
-            return 0, False
+            return 0, False, new_cookie_id
 
 def get_url_visit_count(url_str: str) -> int:
     """Get total visit count for a URL"""

@@ -41,31 +41,19 @@
                         dynamic visit counter badges for your projects. It provides
                         real-time visit tracking with beautiful, customizable badges that
                         can be embedded in your README files, websites, and documentation.
-                    </p>                    <h2>How It Works</h2>
+                    </p>
+                    <h2>How It Works</h2>
                     <p>The application uses FastAPI and SQLite to:</p>
                     <ol>
-                        <li>Track visits to your specified URLs</li>
+                        <li>Track visits to your specified URLs using anonymous cookies</li>
                         <li>Generate dynamic badges via Shields.io integration</li>
                         <li>Provide real-time visit count updates</li>
                         <li>Offer customizable styles, colors, and logos</li>
-                        <li>Implement enhanced rate limiting for abuse prevention</li>
                     </ol>
-
-                    <h2>Rate Limiting</h2>
-                    <p>
-                        BadgeTrack implements a dual rate limiting system:
-                    </p>
-                    <ul>
-                        <li><strong>Visit Tracking:</strong> 48-hour cooldown per IP/URL combination to prevent spam</li>
-                        <li><strong>Badge Creation:</strong> Maximum 10 new badges per IP per day</li>
-                    </ul>
 
                     <h2>Privacy & Security</h2>
                     <p>
-                        User privacy is prioritized. IP addresses are hashed using a secure
-                        key and are never stored in plain text. The application implements
-                        rate limiting to prevent abuse while ensuring accurate visit
-                        tracking. No personal data is collected or stored.
+                        User privacy is prioritized. The application uses an anonymous, unique cookie to distinguish between visits and prevent a single user from incrementing the counter multiple times for the same badge. No personal data is collected or stored. The cookie contains no identifying information.
                     </p>
 
                     <h2>Open Source</h2>

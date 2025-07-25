@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Response
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,31 +10,19 @@ import json
 from .models import initialize_database, close_database
 from .schemas import BadgeParams, UrlStatsResponse, SystemStatsResponse
 from .services import update_visit_count, get_url_visit_count, get_system_statistics, get_app_info, load_template
-from .utils import get_client_ip, get_ip_hash, build_shields_url, get_security_headers
-from .rate_limiter import get_rate_limit_info
-from .background_tasks import startup_tasks, shutdown_tasks
+from .utils import build_shields_url, get_security_headers
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(name)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-cleanup_task = None
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global cleanup_task
-    
     logger.info("Starting BadgeTrack application...")
-    
     if not initialize_database():
         raise RuntimeError("Failed to initialize database")
-    
-    cleanup_task = await startup_tasks()
-    
     yield
-    
     logger.info("Shutting down BadgeTrack application...")
-    await shutdown_tasks(cleanup_task)
     close_database()
 
 def get_app_version():
@@ -82,6 +70,7 @@ app.add_middleware(
 @app.get("/badge")
 async def badge(
     request: Request,
+    response: Response,
     url: str,
     label: str = "visits",
     color: str = "4ade80",
@@ -93,11 +82,12 @@ async def badge(
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid parameters.")
 
-    ip = get_client_ip(request)
-    ip_hash = get_ip_hash(ip)
+    cookie_id = request.cookies.get("visitor_id")
 
     try:
-        count, was_incremented = update_visit_count(ip_hash, params.url)
+        count, was_incremented, new_cookie_id = update_visit_count(cookie_id, params.url)
+        if new_cookie_id:
+            response.set_cookie(key="visitor_id", value=new_cookie_id, max_age=31536000, httponly=True, samesite="Lax")
     except ValueError as e:
         raise HTTPException(status_code=429, detail=str(e))
     except Exception as e:
@@ -129,13 +119,12 @@ async def get_url_stats_endpoint(url: str):
 async def get_system_stats_endpoint():
     try:
         stats = get_system_statistics()
-        rate_info = get_rate_limit_info()
         
         return SystemStatsResponse(
             total_tracked_urls=stats["total_tracked_urls"],
             total_visits=stats["total_visits"],
             new_badges_today=stats["new_badges_today"],
-            rate_limit_window_hours=rate_info["rate_limit_window_hours"]
+            rate_limit_window_hours=0 
         )
     except Exception as e:
         logger.error(f"Error getting system stats: {e}")
