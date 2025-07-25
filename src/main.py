@@ -86,18 +86,29 @@ async def badge(
 
     try:
         count, was_incremented, new_cookie_id = update_visit_count(cookie_id, params.tag)
-        if new_cookie_id:
-            response.set_cookie(key="visitor_id", value=new_cookie_id, max_age=31536000, httponly=True, samesite="Lax")
     except ValueError as e:
         raise HTTPException(status_code=429, detail=str(e))
     except Exception as e:
         logger.error(f"Error updating visit count: {e}")
         count = get_tag_visit_count(params.tag)
+        new_cookie_id = None
 
     shields_url = build_shields_url(params.label, count, params.color, params.style, params.logo)
 
     headers = get_security_headers()
-    return RedirectResponse(shields_url, headers=headers)
+    redirect_response = RedirectResponse(shields_url, status_code=302, headers=headers)
+    
+    # Set cookie if new visitor
+    if new_cookie_id:
+        redirect_response.set_cookie(
+            key="visitor_id", 
+            value=new_cookie_id, 
+            max_age=31536000,  # 1 year
+            httponly=True, 
+            samesite="Lax"
+        )
+    
+    return redirect_response
 
 @app.get("/api/stats/{tag}", response_model=TagStatsResponse)
 async def get_tag_stats_endpoint(tag: str):
